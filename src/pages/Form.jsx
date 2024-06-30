@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 const initialState = {
    name: '',
    dateofbirth: '',
-   gender: false,
+   gender: '',
    class: '',
    image: '',
    feedback: ''
@@ -37,18 +37,22 @@ const Form = () => {
     }
 
     useEffect(() => {
-        if(id) getOneStudent(id);
+        if(id) {
+            getOneStudent(id);
+        }
     }, [id]);
 
     const updateStudent = async (studentID, data) => {
+        data.dateofbirth = data.dateofbirth.split("-").reverse().join("/")
         const res = await axios.put(`https://6678369d0bd45250561de22c.mockapi.io/students/${studentID}`, data);
         if (res.status === 200) {
-            toast.success(`Updated s student with ID: ${studentID} successfully !!!`);
+            toast.success(`Updated student with ID: ${studentID} successfully !!!`);
             navigate('/dashboard');
         }
     }
 
     const addNewStudent = async (data) => {
+        data.dateofbirth = data.dateofbirth.split("-").reverse().join("/")
         const res = await axios.post(`https://6678369d0bd45250561de22c.mockapi.io/students`, data);
         if (res.status === 200 || res.status === 201) {
             toast.success("New student has been added successfully !!!");
@@ -59,8 +63,12 @@ const Form = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
         if (validateForm()) {
-            if (id) updateStudent(id, student);
-            else addNewStudent(student);
+            if (id) {
+                updateStudent(id, student);
+            }
+            else {
+                addNewStudent(student);
+            }
         } else {
             toast.error("Some info is invalid. Please check again !!!");
         }
@@ -70,7 +78,6 @@ const Form = () => {
         const { name, value } = e.target;
         setStudent({ ...student, [name]: value });
     };
-
     
     const validateForm = () => {
         let isValid = true;
@@ -88,13 +95,12 @@ const Form = () => {
             errors.dob_err = 'Birthday is required';
             isValid = false;
         }
-
-        if (!student.gender) {
+        
+        if (!student.gender.trim()) {
             errors.gender_err = 'Gender is required';
             isValid = false;
         }
-        
-        
+
         if (!student.class.trim()) {
             errors.class_err = 'Class is required';
             isValid = false;
@@ -128,12 +134,17 @@ const Form = () => {
                     </div>
                     <div>
                         <label htmlFor="dateofbirth">Birthday: </label>
-                        <input type="text" name='dateofbirth' placeholder="Enter birthday" value={student.dateofbirth} onChange={handleChange} />
+                        <input type="date" name='dateofbirth' value={student.dateofbirth.split("/").reverse().join("-")} onChange={handleChange} />
                         {errors.dob_err && <span className='error'>{errors.dob_err}</span>}
                     </div>
                     <div>
                         <label htmlFor="gender">Gender: </label>
-                        <input type="text" name='gender' placeholder="True(Male) / False(Female)" value={student.gender} onChange={handleChange} />
+                        <select value={student.gender} name='gender' onChange={handleChange}>
+                            <option value="">Choose gender</option>
+                            <option value="true">Male</option>
+                            <option value="false">Female</option>
+                        </select>
+                        <br/>
                         {errors.gender_err && <span className='error'>{errors.gender_err}</span>}
                     </div>
                     <div>
