@@ -96,7 +96,7 @@ const Form = () => {
             isValid = false;
         }
         
-        if (!student.gender.trim()) {
+        if (!student.gender) {
             errors.gender_err = 'Gender is required';
             isValid = false;
         }
